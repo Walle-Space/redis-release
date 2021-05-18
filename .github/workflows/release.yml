@@ -23,7 +23,7 @@ jobs:
         REDIS_DOWNLOAD_URL: http://download.redis.io/releases/redis-6.2.3.tar.gz
         REDIS_DOWNLOAD_SHA: 98ed7d532b5e9671f5df0825bb71f0f37483a16546364049384c63db8764512b
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
