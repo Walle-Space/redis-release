@@ -71,17 +71,17 @@ jobs:
             libssl-dev \
             make \
           ; \
-          rm -rf /var/lib/apt/lists/*; \
+          sudo rm -rf /var/lib/apt/lists/*; \
           \
-          wget -O redis.tar.gz "$REDIS_DOWNLOAD_URL"; \
+          sudo wget -O redis.tar.gz "$REDIS_DOWNLOAD_URL"; \
           echo "$REDIS_DOWNLOAD_SHA *redis.tar.gz" | sha256sum -c -; \
-          mkdir -p /usr/src/redis; \
-          tar -xzf redis.tar.gz -C /usr/src/redis --strip-components=1; \
-          rm redis.tar.gz; \
+          sudo mkdir -p /usr/src/redis; \
+          sudo tar -xzf redis.tar.gz -C /usr/src/redis --strip-components=1; \
+          sudo rm redis.tar.gz; \
           \
-          grep -E '^ *createBoolConfig[(]"protected-mode",.*, *1 *,.*[)],$' /usr/src/redis/src/config.c; \
-          sed -ri 's!^( *createBoolConfig[(]"protected-mode",.*, *)1( *,.*[)],)$!\10\2!' /usr/src/redis/src/config.c; \
-          grep -E '^ *createBoolConfig[(]"protected-mode",.*, *0 *,.*[)],$' /usr/src/redis/src/config.c; \
+          sudo grep -E '^ *createBoolConfig[(]"protected-mode",.*, *1 *,.*[)],$' /usr/src/redis/src/config.c; \
+          sudo sed -ri 's!^( *createBoolConfig[(]"protected-mode",.*, *)1( *,.*[)],)$!\10\2!' /usr/src/redis/src/config.c; \
+          sudo grep -E '^ *createBoolConfig[(]"protected-mode",.*, *0 *,.*[)],$' /usr/src/redis/src/config.c; \
           \
           gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
           extraJemallocConfigureFlags="--build=$gnuArch"; \
@@ -91,13 +91,13 @@ jobs:
             *) extraJemallocConfigureFlags="$extraJemallocConfigureFlags --with-lg-page=16" ;; \
           esac; \
           extraJemallocConfigureFlags="$extraJemallocConfigureFlags --with-lg-hugepage=21"; \
-          grep -F 'cd jemalloc && ./configure ' /usr/src/redis/deps/Makefile; \
-          sed -ri 's!cd jemalloc && ./configure !&'"$extraJemallocConfigureFlags"' !' /usr/src/redis/deps/Makefile; \
-          grep -F "cd jemalloc && ./configure $extraJemallocConfigureFlags " /usr/src/redis/deps/Makefile; \
+          sudo grep -F 'cd jemalloc && ./configure ' /usr/src/redis/deps/Makefile; \
+          sudo sed -ri 's!cd jemalloc && ./configure !&'"$extraJemallocConfigureFlags"' !' /usr/src/redis/deps/Makefile; \
+          sudo grep -F "cd jemalloc && ./configure $extraJemallocConfigureFlags " /usr/src/redis/deps/Makefile; \
           \
           export BUILD_TLS=yes; \
-          make -C /usr/src/redis -j "$(nproc)" all; \
-          make -C /usr/src/redis install; \
+          sudo make -C /usr/src/redis -j "$(nproc)" all; \
+          sudo make -C /usr/src/redis install; \
           \
           serverMd5="$(md5sum /usr/local/bin/redis-server | cut -d' ' -f1)"; export serverMd5; \
           find /usr/local/bin/redis* -maxdepth 0 \
@@ -109,11 +109,11 @@ jobs:
             -exec ln -svfT 'redis-server' '{}' ';' \
           ; \
           \
-          rm -r /usr/src/redis; \
+          sudo rm -r /usr/src/redis; \
           \
-          apt-mark auto '.*' > /dev/null; \
+          sudo apt-mark auto '.*' > /dev/null; \
           [ -z "$savedAptMark" ] || apt-mark manual $savedAptMark > /dev/null; \
-          find /usr/local -type f -executable -exec ldd '{}' ';' \
+          sudo find /usr/local -type f -executable -exec ldd '{}' ';' \
             | awk '/=>/ { print $(NF-1) }' \
             | sort -u \
             | xargs -r dpkg-query --search \
